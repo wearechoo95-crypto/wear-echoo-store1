@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wear Echoo — Streetwear</title>
+<style>
+:root{--bg:#f5f3ee;--ink:#11110f;--muted:#716e67;--line:#ddd9d0;--accent:#d9ff3f;--card:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}a{text-decoration:none;color:inherit}button,input,textarea,select{font:inherit}button{cursor:pointer}
+header{position:sticky;top:0;z-index:4;background:rgba(245,243,238,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.nav{max-width:1180px;margin:auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;font-size:22px;letter-spacing:-1.2px}.navlinks{display:flex;gap:22px;font-size:13px}.cartbtn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:999px;padding:10px 15px}
+main{max-width:1180px;margin:auto;padding:0 20px}.hero{padding:75px 0 55px;display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:end}.hero h1{font-size:clamp(55px,9vw,112px);line-height:.83;letter-spacing:-6px;margin:0}.hero p{color:var(--muted);max-width:480px;line-height:1.6}.hero-card{background:#171713;color:#fff;min-height:350px;border-radius:20px;padding:25px;display:flex;align-items:end;position:relative;overflow:hidden}.hero-card:after{content:"WEAR ECHOO";position:absolute;font-weight:900;font-size:65px;line-height:.8;opacity:.08;transform:rotate(-12deg);right:-15px;bottom:60px}
+.sectionhead{display:flex;justify-content:space-between;align-items:end;margin:25px 0 18px}.sectionhead h2{margin:0;font-size:28px}.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.product{background:var(--card);border:1px solid var(--line);border-radius:15px;overflow:hidden}.photo{aspect-ratio:4/5;background:#e8e5dd;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover}.noimg{font-size:12px;color:#999}.info{padding:14px}.info h3{font-size:15px;margin:0 0 5px}.price{font-weight:800}.meta{color:var(--muted);font-size:12px;margin-top:5px}.add{width:100%;margin-top:12px;border:0;background:var(--ink);color:#fff;padding:11px;border-radius:8px;font-weight:700}
+footer{border-top:1px solid var(--line);margin-top:70px;padding:30px 20px;color:var(--muted);font-size:12px}.foot{max-width:1180px;margin:auto;display:flex;justify-content:space-between}
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:10;display:none}.drawer.open{display:block}.drawerbox{position:absolute;right:0;top:0;height:100%;width:min(460px,100%);background:var(--bg);padding:22px;overflow:auto}.close{float:right;border:1px solid var(--line);background:#fff;border-radius:50%;width:34px;height:34px}.drawer h2{margin-top:5px}.cartitem{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.cartitem .mini{width:65px;height:80px;background:#e8e5dd;object-fit:cover;border-radius:8px}.qty{display:flex;gap:7px;align-items:center;margin-top:7px}.qty button{border:1px solid var(--line);background:#fff;border-radius:6px;width:27px;height:27px}.form{display:grid;gap:10px;margin-top:20px}.field{border:1px solid var(--line);border-radius:9px;padding:11px;background:#fff;width:100%}.upi{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px}.pay{display:block;text-align:center;background:var(--accent);padding:13px;border-radius:9px;font-weight:800;margin-top:9px}.submit{width:100%;border:0;background:var(--ink);color:#fff;border-radius:9px;padding:13px;font-weight:800}.empty{text-align:center;padding:45px 10px;color:var(--muted)}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:45px}.grid{grid-template-columns:repeat(2,1fr)}.navlinks{display:none}.hero h1{letter-spacing:-3px}.hero-card{min-height:220px}}
+</style>
+</head>
+<body>
+<header><div class="nav"><a class="logo" href="#">WEAR ECHOO</a><div class="navlinks"><a href="#shop">Shop</a><a href="#about">About</a></div><button class="cartbtn" onclick="openCart()">Cart (<span id="count">0</span>)</button></div></header>
+<main>
+<section class="hero"><div><div class="muted">INDIA · EVERYDAY STREETWEAR</div><h1>WEAR<br>ECHOO.</h1><p>Graphic energy. Everyday comfort. Built for people who wear their mood.</p><a class="cartbtn" style="display:inline-block;margin-top:8px" href="#shop">Shop the drop →</a></div><div class="hero-card"><div><div style="color:#b8b8ad;font-size:12px">THE CURRENT DROP</div><div style="font-size:35px;font-weight:800;line-height:.95;margin-top:8px">YOUR<br>STYLE.<br>YOUR ECHOO.</div></div></div></section>
+<section id="shop"><div class="sectionhead"><div><h2>Shop</h2><div class="muted">Fresh pieces from Wear Echoo.</div></div></div><div id="products" class="grid"><div class="empty" style="grid-column:1/-1">Loading products…</div></div></section>
+<section id="about" style="padding:55px 0"><div class="sectionhead"><div><h2>Wear Echoo</h2><div class="muted">Instagram-first streetwear, made to be worn.</div></div></div></section>
+</main>
+<footer><div class="foot"><span>© Wear Echoo</span><span>UPI · wear-echo@ptyes</span></div></footer>
+
+<div class="drawer" id="drawer" onclick="if(event.target===this)closeCart()"><div class="drawerbox">
+<button class="close" onclick="closeCart()">×</button><h2>Your cart</h2><div id="cart"></div>
+<div id="checkout" style="display:none"><hr style="border:0;border-top:1px solid var(--line)"><h3>Checkout</h3>
+<form class="form" onsubmit="placeOrder(event)">
+<input class="field" id="name" required placeholder="Full name"><input class="field" id="phone" required placeholder="Phone number">
+<input class="field" id="email" type="email" placeholder="Email (optional)">
+<textarea class="field" id="address" required rows="3" placeholder="Full delivery address"></textarea>
+<input class="field" id="city" required placeholder="City"><input class="field" id="state" required placeholder="State"><input class="field" id="pin" required placeholder="PIN code">
+<div class="upi"><b>Pay via UPI</b><div class="muted" style="margin-top:5px">UPI ID</div><div style="font-size:18px;font-weight:800;margin-top:3px">wear-echo@ptyes</div><button type="button" class="field" style="margin-top:9px" onclick="copyUPI()">Copy UPI ID</button><a class="pay" id="upiLink" href="#">Open UPI app</a><div class="muted" style="margin-top:8px">After payment, submit the order. Payment is manually verified before shipping.</div></div>
+<button class="submit">I've paid — place order</button></form></div></div></div>
+
+<script>
+const SUPABASE_URL="https://fmadihutxxwurcuufwmw.supabase.co";
+const SUPABASE_KEY="sb_publishable_TfPBpYmmiA0ibrkKSdZxLA_vl6wwyTj";
+let products=[],cart=JSON.parse(localStorage.getItem("we_cart")||"[]");
+const api=(path,opt={})=>fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",...(opt.headers||{})}});
+function money(n){return "₹"+Number(n).toLocaleString("en-IN")}
+function saveCart(){localStorage.setItem("we_cart",JSON.stringify(cart));renderCart();document.getElementById("count").textContent=cart.reduce((a,x)=>a+x.qty,0)}
+async function loadProducts(){const r=await api("products?active=eq.true&select=*&order=created_at.desc");products=await r.json();renderProducts()}
+function renderProducts(){const el=document.getElementById("products");if(!products.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">No products available yet.</div>';return}el.innerHTML=products.map(p=>`<article class="product"><div class="photo">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}">`:'<div class="noimg">Wear Echoo</div>'}</div><div class="info"><h3>${esc(p.name)}</h3><div class="price">${money(p.price)}</div><div class="meta">${esc(p.color||"")} · ${p.stock} in stock</div><button class="add" onclick="add(${p.id?`'${p.id}'`:"null"})">Add to cart</button></div></article>`).join("")}
+function add(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const size=(p.sizes&&p.sizes[0])||"M";const old=cart.find(x=>x.id===p.id&&x.size===size);if(old)old.qty++;else cart.push({id:p.id,size,qty:1,name:p.name,price:p.price,image:p.image_url});saveCart();openCart()}
+function renderCart(){const el=document.getElementById("cart");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty.</div>';document.getElementById("checkout").style.display="none";return}document.getElementById("checkout").style.display="block";el.innerHTML=cart.map((x,i)=>`<div class="cartitem">${x.image?`<img class="mini" src="${esc(x.image)}">`:'<div class="mini"></div>'}<div style="flex:1"><b>${esc(x.name)}</b><div class="muted">Size: ${esc(x.size)}</div><div class="qty"><button onclick="change(${i},-1)">−</button><span>${x.qty}</span><button onclick="change(${i},1)">+</button><span style="margin-left:auto;font-weight:800">${money(x.price*x.qty)}</span></div></div></div>`).join("")+`<div style="display:flex;justify-content:space-between;padding:17px 0;font-weight:800"><span>Total</span><span>${money(total())}</span></div>`;updateUPI()}
+function total(){return cart.reduce((a,x)=>a+x.price*x.qty,0)}
+function change(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);saveCart()}
+function openCart(){document.getElementById("drawer").classList.add("open");renderCart()}function closeCart(){document.getElementById("drawer").classList.remove("open")}
+function updateUPI(){const a=document.getElementById("upiLink");if(a)a.href="upi://pay?pa=wear-echo%40ptyes&pn=Wear%20Echoo&am="+total().toFixed(2)+"&cu=INR"}
+function copyUPI(){navigator.clipboard?.writeText("wear-echo@ptyes").then(()=>alert("UPI ID copied."))}
+async function placeOrder(e){e.preventDefault();if(!cart.length)return;const orderNumber="WE-"+Date.now().toString().slice(-8);const payload={order_number:orderNumber,customer_name:name.value.trim(),customer_phone:phone.value.trim(),customer_email:email.value.trim()||null,shipping_address:address.value.trim(),shipping_city:city.value.trim(),shipping_state:state.value.trim(),shipping_pin:pin.value.trim(),subtotal:total(),shipping_charge:0,total:total(),payment_method:"UPI",payment_status:"customer_marked_paid",order_status:"new"};const r=await api("orders",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify(payload)});if(!r.ok){alert("Could not create order. Please try again.");return}const row=(await r.json())[0];const items=cart.map(x=>({order_id:row.id,product_id:x.id,product_name:x.name,size:x.size,color:"",quantity:x.qty,unit_price:x.price}));const ri=await api("order_items",{method:"POST",body:JSON.stringify(items)});if(!ri.ok){alert("Order was created, but items could not be saved. Please contact Wear Echoo.");return}alert("Order "+orderNumber+" placed! We will verify your UPI payment before shipping.");cart=[];saveCart();closeCart();e.target.reset()}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+loadProducts();saveCart();
+</script>
+</body></html>
