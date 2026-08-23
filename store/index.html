@@ -91,7 +91,37 @@ function changeProductImage(id){
     ? `<img src="${esc(image)}" alt="${esc(p.name)}">`
     : '<div class="noimg">Wear Echoo</div>';
 }
-function add(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const size=(p.sizes&&p.sizes[0])||"M";const old=cart.find(x=>x.id===p.id&&x.size===size);if(old)old.qty++;else cart.push({id:p.id,size,qty:1,name:p.name,price:p.price,image:p.image_url});saveCart();openCart()}
+function add(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  const colorEl=document.getElementById("color-"+id);
+  const sizeEl=document.getElementById("size-"+id);
+
+  const color=colorEl ? colorEl.value : "";
+  const size=sizeEl ? sizeEl.value : ((p.sizes&&p.sizes[0])||"M");
+
+  const key=String(id)+"-"+color+"-"+size;
+
+  const old=cart.find(x=>x.key===key);
+
+  if(old){
+    old.qty++;
+  }else{
+    cart.push({
+      key:key,
+      id:p.id,
+      name:p.name,
+      price:Number(p.price),
+      color:color,
+      size:size,
+      image_url:(p.color_images||{})[color]||p.image_url||null,
+      qty:1
+    });
+  }
+
+  saveCart();
+}
 function renderCart(){const el=document.getElementById("cart");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty.</div>';document.getElementById("checkout").style.display="none";return}document.getElementById("checkout").style.display="block";el.innerHTML=cart.map((x,i)=>`<div class="cartitem">${x.image?`<img class="mini" src="${esc(x.image)}">`:'<div class="mini"></div>'}<div style="flex:1"><b>${esc(x.name)}</b><div class="muted">Size: ${esc(x.size)}</div><div class="qty"><button onclick="change(${i},-1)">−</button><span>${x.qty}</span><button onclick="change(${i},1)">+</button><span style="margin-left:auto;font-weight:800">${money(x.price*x.qty)}</span></div></div></div>`).join("")+`<div style="display:flex;justify-content:space-between;padding:17px 0;font-weight:800"><span>Total</span><span>${money(total())}</span></div>`;updateUPI()}
 function total(){return cart.reduce((a,x)=>a+x.price*x.qty,0)}
 function change(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);saveCart()}
