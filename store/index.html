@@ -49,7 +49,48 @@ const api=(path,opt={})=>fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers:{ap
 function money(n){return "₹"+Number(n).toLocaleString("en-IN")}
 function saveCart(){localStorage.setItem("we_cart",JSON.stringify(cart));renderCart();document.getElementById("count").textContent=cart.reduce((a,x)=>a+x.qty,0)}
 async function loadProducts(){const r=await api("products?active=eq.true&select=*&order=created_at.desc");products=await r.json();renderProducts()}
-function renderProducts(){const el=document.getElementById("products");if(!products.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">No products available yet.</div>';return}el.innerHTML=products.map(p=>`<article class="product"><div class="photo">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}">`:'<div class="noimg">Wear Echoo</div>'}</div><div class="info"><h3>${esc(p.name)}</h3><div class="price">${money(p.price)}</div><div class="meta">${esc(p.color||"")} · ${p.stock} in stock</div><button class="add" onclick="add(${p.id?`'${p.id}'`:"null"})">Add to cart</button></div></article>`).join("")}
+function renderProducts(){const el=document.getElementById("products");if(!products.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">No products available yet.</div>';return}el.innerHTML=products.map(p=> const colors=(p.color||"").split(",").map(x=>x.trim()).filter(Boolean);  const sizes=(p.sizes||[]).map(x=>String(x).trim()).filter(Boolean);  const firstColor=colors[0]||""; const images=p.color_images||{};  const firstImage=images[firstColor]||p.image_url||""; return ' <article class="product"><div class="photo" id="photo-${p.id}">$ {firstImage
+            ? `<img src="${esc(firstImage)}" alt="${esc(p.name)}">`
+            : '<div class="noimg">Wear Echoo</div>'}
+        </div>
+
+        <div class="info">
+          <h3>${esc(p.name)}</h3>
+          <div class="price">${money(p.price)}</div>
+
+          <div class="meta">Colour</div>
+          <select class="field" id="color-${p.id}" onchange="changeProductImage('${p.id}')">
+            ${colors.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")}
+          </select>
+
+          <div class="meta">Size</div>
+          <select class="field" id="size-${p.id}">
+            ${sizes.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("")}
+          </select>
+
+          <div class="meta">${p.stock} in stock</div>
+
+          <button class="add" onclick="add('${p.id}')">
+            Add to cart
+          </button>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+function changeProductImage(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  const color=document.getElementById("color-"+id).value;
+  const images=p.color_images||{};
+  const image=images[color]||p.image_url||"";
+  const photo=document.getElementById("photo-"+id);
+
+  photo.innerHTML=image
+    ? `<img src="${esc(image)}" alt="${esc(p.name)}">`
+    : '<div class="noimg">Wear Echoo</div>';
+}
 function add(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const size=(p.sizes&&p.sizes[0])||"M";const old=cart.find(x=>x.id===p.id&&x.size===size);if(old)old.qty++;else cart.push({id:p.id,size,qty:1,name:p.name,price:p.price,image:p.image_url});saveCart();openCart()}
 function renderCart(){const el=document.getElementById("cart");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty.</div>';document.getElementById("checkout").style.display="none";return}document.getElementById("checkout").style.display="block";el.innerHTML=cart.map((x,i)=>`<div class="cartitem">${x.image?`<img class="mini" src="${esc(x.image)}">`:'<div class="mini"></div>'}<div style="flex:1"><b>${esc(x.name)}</b><div class="muted">Size: ${esc(x.size)}</div><div class="qty"><button onclick="change(${i},-1)">−</button><span>${x.qty}</span><button onclick="change(${i},1)">+</button><span style="margin-left:auto;font-weight:800">${money(x.price*x.qty)}</span></div></div></div>`).join("")+`<div style="display:flex;justify-content:space-between;padding:17px 0;font-weight:800"><span>Total</span><span>${money(total())}</span></div>`;updateUPI()}
 function total(){return cart.reduce((a,x)=>a+x.price*x.qty,0)}
