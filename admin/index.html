@@ -30,7 +30,26 @@ function money(n){return "₹"+Number(n||0).toLocaleString("en-IN")}function esc
 function page(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");load()}
 async function load(){const p=await(await A("products?select=*&order=created_at.desc")).json();const o=await(await A("orders?select=*&order=created_at.desc")).json();render(p,o)}
 function render(p,o){sp.textContent=p.length;so.textContent=o.length;sr.textContent=money(o.filter(x=>x.payment_status==="verified").reduce((a,x)=>a+Number(x.total),0));sl.textContent=p.filter(x=>x.stock>0&&x.stock<=5).length;rows.innerHTML=p.map(x=>`<tr><td><div class="prod">${x.image_url?`<img class="thumb" src="${esc(x.image_url)}">`:"<div class='thumb'></div>"}<div><b>${esc(x.name)}</b><div class="muted">${esc(x.color||"")}</div></div></div></td><td>${money(x.price)}</td><td>${esc((x.sizes||[]).join(", "))}</td><td>${x.stock}</td><td><div class="actions"><button onclick="edit('${x.id}')">Edit</button><button onclick="del('${x.id}')">Delete</button></div></td></tr>`).join("")||"<tr><td colspan='5'><div class='empty'>No products.</div></td></tr>";recent.innerHTML=o.slice(0,5).map(x=>`<div style="padding:10px 0;border-bottom:1px solid #ddd9d0"><b>${esc(x.order_number)}</b> · ${esc(x.customer_name)} · ${money(x.total)} · ${esc(x.order_status)}</div>`).join("")||"<div class='empty'>No orders.</div>";orders.innerHTML=o.map((x,i)=>`<div class="order"><div><b>${esc(x.order_number)}</b><div class="muted">${esc(x.customer_name)} · ${esc(x.customer_phone)}<br>${esc(x.shipping_address)}, ${esc(x.shipping_city)}, ${esc(x.shipping_state)} - ${esc(x.shipping_pin)}<br>Payment: ${esc(x.payment_status)}</div></div><div><b>${money(x.total)}</b><div style="margin-top:8px"><select class="field" onchange="status('${x.id}',this.value)"><option ${x.order_status==="new"?"selected":""} value="new">New</option><option ${x.order_status==="packed"?"selected":""} value="packed">Packed</option><option ${x.order_status==="shipped"?"selected":""} value="shipped">Shipped</option><option ${x.order_status==="delivered"?"selected":""} value="delivered">Delivered</option><option ${x.order_status==="cancelled"?"selected":""} value="cancelled">Cancelled</option></select><button class="btn" style="margin-top:7px;width:100%" onclick="verify('${x.id}')">Verify UPI</button></div></div></div>`).join("")||"<div class='empty'>No orders.</div>"}
-function openProduct(id){pid.value=id||"";mt.textContent=id?"Edit product":"Add product";const p=window.__products?.find(x=>x.id===id);name.value=p?.name||"";price.value=p?.price||"";color.value=p?.color||"";cat.value=p?.category||"Graphic";sizes.value=(p?.sizes||["S","M","L","XL","XXL"]).join(", ");stock.value=p?.stock??10;image.value=p?.image_url||"";desc.value=p?.description||"";modal.classList.add("open")}
+function openProduct(id){
+  pid.value=id||"";
+  mt.textContent=id?"Edit product":"Add product";
+
+  const p=window.__products?.find(x=>x.id===id);
+
+  name.value=p?.name||"";
+  price.value=p?.price||"";
+  color.value=p?.color||"";
+  cat.value=p?.category||"Graphic";
+  sizes.value=(p?.sizes||["S","M","L","XL","XXL"]).join(", ");
+  stock.value=p?.stock??10;
+
+  // Clear file picker
+  imageFiles.value="";
+
+  desc.value=p?.description||"";
+
+  modal.classList.add("open");
+}
 function closeModal(){modal.classList.remove("open")}
 async function edit(id){const p=await(await A("products?id=eq."+id+"&select=*")).json();window.__products=p;openProduct(id)}
 async function save(e){ e.preventDefault();const files = Array.from(imageFiles.files || []);const colorImages = {};
