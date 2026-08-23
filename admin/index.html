@@ -7,7 +7,7 @@
 <div class="layout"><aside><div class="logo">WEAR ECHOO</div><div class="muted" style="color:#777;margin-top:4px">ADMIN</div><nav><button class="active" onclick="page('dashboard',this)">Dashboard</button><button onclick="page('products',this)">Products</button><button onclick="page('orders',this)">Orders</button><button onclick="page('settings',this)">Settings</button></nav></aside>
 <main>
 <section id="dashboard" class="page active"><div class="top"><div><h1>Dashboard</h1><div class="muted">Live Wear Echoo store management.</div></div><button class="btn green" onclick="openProduct()">+ Add product</button></div><div class="stats"><div class="stat"><small>Products</small><strong id="sp">0</strong></div><div class="stat"><small>Orders</small><strong id="so">0</strong></div><div class="stat"><small>Revenue verified</small><strong id="sr">₹0</strong></div><div class="stat"><small>Low stock</small><strong id="sl">0</strong></div></div><div class="panel"><h3>Recent orders</h3><div id="recent"></div></div></section>
-<section id="products" class="page"><div class="top"><div><h1>Products</h1><div class="muted">Manage the products shown in the store.</div></div><button class="btn green" onclick="document.getElementById('modal').classList.add('open')">+ Add product</button></div><div class="panel"><div class="tablewrap"><table class="table"><thead><tr><th>Product</th><th>Price</th><th>Sizes</th><th>Stock</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
+<section id="products" class="page"><div class="top"><div><h1>Products</h1><div class="muted">Manage the products shown in the store.</div></div><button class="btn green" onclick="openProduct()">+ Add product</button></div><div class="panel"><div class="tablewrap"><table class="table"><thead><tr><th>Product</th><th>Price</th><th>Sizes</th><th>Stock</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
 <section id="orders" class="page"><div class="top"><div><h1>Orders</h1><div class="muted">Verify UPI payments and update shipping.</div></div></div><div class="panel"><div id="orders"></div></div></section>
 <section id="settings" class="page"><div class="top"><div><h1>Settings</h1><div class="muted">Wear Echoo payment details.</div></div></div><div class="panel"><h3>UPI</h3><input class="field" id="upi" value="wear-echo@ptyes"><p class="muted">Direct UPI payments require manual verification.</p></div></section>
 </main></div>
@@ -15,13 +15,7 @@
 <div><label>Name</label><input class="field" id="name" required></div><div><label>Price</label><input class="field" id="price" type="number" required></div>
 <div><label>Color</label><input class="field" id="color" placeholder="black, white, blue, grey, light baby pink, lavender"></div><div><label>Category</label><input class="field" id="cat" value="Graphic"></div>
 <div><label>Sizes</label><input class="field" id="sizes" value="S, M, L, XL, XXL"></div><div><label>Stock</label><input class="field" id="stock" type="number" value="10"></div>
-<div class="full">
-  <label>Product Images — select one image for each colour</label>
-  <input class="field" id="imageFiles" type="file" accept="image/*" multiple>
-  <div class="muted" style="margin-top:6px">
-    Name your files after the colour: black.jpg, white.jpg, blue.jpg, etc.
-  </div>
-</div>
+<div class="full"><label>color Image</label><textarea class="field" id="image" rows="4" placeholder="Black: URL&#10;White: URL&#10;Blue: URL"></textarea>></div><div class="full"><label>Description</label><textarea class="field" id="desc" rows="3"></textarea></div>
 </div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn green">Save</button></div></form></div></div>
 <script>
 const U="https://fmadihutxxwurcuufwmw.supabase.co",K="sb_publishable_TfPBpYmmiA0ibrkKSdZxLA_vl6wwyTj";
@@ -30,34 +24,11 @@ function money(n){return "₹"+Number(n||0).toLocaleString("en-IN")}function esc
 function page(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");load()}
 async function load(){const p=await(await A("products?select=*&order=created_at.desc")).json();const o=await(await A("orders?select=*&order=created_at.desc")).json();render(p,o)}
 function render(p,o){sp.textContent=p.length;so.textContent=o.length;sr.textContent=money(o.filter(x=>x.payment_status==="verified").reduce((a,x)=>a+Number(x.total),0));sl.textContent=p.filter(x=>x.stock>0&&x.stock<=5).length;rows.innerHTML=p.map(x=>`<tr><td><div class="prod">${x.image_url?`<img class="thumb" src="${esc(x.image_url)}">`:"<div class='thumb'></div>"}<div><b>${esc(x.name)}</b><div class="muted">${esc(x.color||"")}</div></div></div></td><td>${money(x.price)}</td><td>${esc((x.sizes||[]).join(", "))}</td><td>${x.stock}</td><td><div class="actions"><button onclick="edit('${x.id}')">Edit</button><button onclick="del('${x.id}')">Delete</button></div></td></tr>`).join("")||"<tr><td colspan='5'><div class='empty'>No products.</div></td></tr>";recent.innerHTML=o.slice(0,5).map(x=>`<div style="padding:10px 0;border-bottom:1px solid #ddd9d0"><b>${esc(x.order_number)}</b> · ${esc(x.customer_name)} · ${money(x.total)} · ${esc(x.order_status)}</div>`).join("")||"<div class='empty'>No orders.</div>";orders.innerHTML=o.map((x,i)=>`<div class="order"><div><b>${esc(x.order_number)}</b><div class="muted">${esc(x.customer_name)} · ${esc(x.customer_phone)}<br>${esc(x.shipping_address)}, ${esc(x.shipping_city)}, ${esc(x.shipping_state)} - ${esc(x.shipping_pin)}<br>Payment: ${esc(x.payment_status)}</div></div><div><b>${money(x.total)}</b><div style="margin-top:8px"><select class="field" onchange="status('${x.id}',this.value)"><option ${x.order_status==="new"?"selected":""} value="new">New</option><option ${x.order_status==="packed"?"selected":""} value="packed">Packed</option><option ${x.order_status==="shipped"?"selected":""} value="shipped">Shipped</option><option ${x.order_status==="delivered"?"selected":""} value="delivered">Delivered</option><option ${x.order_status==="cancelled"?"selected":""} value="cancelled">Cancelled</option></select><button class="btn" style="margin-top:7px;width:100%" onclick="verify('${x.id}')">Verify UPI</button></div></div></div>`).join("")||"<div class='empty'>No orders.</div>"}
-function openProduct(id){
-  pid.value = id || "";
-  mt.textContent = id ? "Edit product" : "Add product";
-
-  const p = (window.__products || []).find(x => String(x.id) === String(id));
-
-  name.value = p?.name || "";
-  price.value = p?.price || "";
-  color.value = p?.color || "";
-  cat.value = p?.category || "Graphic";
-  sizes.value = Array.isArray(p?.sizes)
-    ? p.sizes.join(", ")
-    : "S, M, L, XL, XXL";
-  stock.value = p?.stock ?? 10;
-  desc.value = p?.description || "";
-
-  if (imageFiles) {
-    imageFiles.value = "";
-  }
-
-  modal.classList.add("open");
-}
+function openProduct(id){pid.value=id||"";mt.textContent=id?"Edit product":"Add product";const p=window.__products?.find(x=>x.id===id);name.value=p?.name||"";price.value=p?.price||"";color.value=p?.color||"";cat.value=p?.category||"Graphic";sizes.value=(p?.sizes||["S","M","L","XL","XXL"]).join(", ");stock.value=p?.stock??10;image.value=p?.image_url||"";desc.value=p?.description||"";modal.classList.add("open")}
 function closeModal(){modal.classList.remove("open")}
 async function edit(id){const p=await(await A("products?id=eq."+id+"&select=*")).json();window.__products=p;openProduct(id)}
-async function save(e){ e.preventDefault();const files = Array.from(imageFiles.files || []);const colorImages = {};
-                       // upload each image from your laptop to supabase storage 
-                       for(const file of files)}
-                       const colorName = file.name.split(".")[0].trim().toLowerCase();const safeName =Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");const upload = await fetch(U + "/storage/v1/object/product-images/" + safeName,{method:"POST",headers:{apikey:K,Authorization:"Bearer " + K,"Content-Type":file.type || "image/jpeg"},body:file});if(!upload.ok){alert("Could not upload " + file.name);return;}colorImages[colorName] =U + "/storage/v1/object/public/product-images/" + (safeName);}const body={name:name.value.trim(),price:Number(price.value),color:color.value.trim(),category:cat.value.trim() || "Graphic",sizes:sizes.value.split(",").map(x=>x.trim()).filter(Boolean),stock:Number(stock.value),color_images:colorImages,description:desc.value.trim(),active:true};const id=pid.value;const r=await A(id? "products?id=eq."+id: "products",{method:id ? "PATCH" : "POST",headers:{Prefer:"return=minimal","Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok){alert("Could not save product.");return;}closeModal();load();}
+async function save(e){e.preventDefault();const imageText = image.value.trim();const imageMap = {};imageText.split("\n").forEach(line=> {const parts = line.split(":"); if (parts.length>=2) {const colorName = parts.shift().trim().toLowerCase();const imageUrl = parts.join(":").trim(); if (colorName && imageUrl) {imageMap[colorName] = imageUrl;}}});const body = {name: name.value.trim(),price: Number(price.value),color: color.value.trim(),category: cat.value.trim() || "Graphic",sizes: sizes.value.split(",").map(x => x.trim()).filter(Boolean),stock: Number(stock.value),image_url: Object.keys(imageMap).length ? JSON.stringify(imageMap) : null,description: desc.value.trim(),active: true};constid = pid.value;const r = await A(id ? "products?id=eq." + id : "products",{method: id ? "PATCH" : "POST",headers: {Prefer: "return=minimal"},body: JSON.stringify(body)}); if (!r.ok) {alert("Could not save product.");return;}closeModal();load();}
+async function del(id){if(!confirm("Delete this product?"))return;await A("products?id=eq."+id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({active:false})});load()}
 async function status(id,v){await A("orders?id=eq."+id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({order_status:v})});load()}
 async function verify(id){if(!confirm("Have you checked your UPI/bank app and confirmed this payment?"))return;await A("orders?id=eq."+id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({payment_status:"verified"})});load()}
 load();
