@@ -33,88 +33,10 @@ function render(p,o){sp.textContent=p.length;so.textContent=o.length;sr.textCont
 function openProduct(id){pid.value=id||"";mt.textContent=id?"Edit product":"Add product";const p=window.__products?.find(x=>x.id===id);name.value=p?.name||"";price.value=p?.price||"";color.value=p?.color||"";cat.value=p?.category||"Graphic";sizes.value=(p?.sizes||["S","M","L","XL","XXL"]).join(", ");stock.value=p?.stock??10;image.value=p?.image_url||"";desc.value=p?.description||"";modal.classList.add("open")}
 function closeModal(){modal.classList.remove("open")}
 async function edit(id){const p=await(await A("products?id=eq."+id+"&select=*")).json();window.__products=p;openProduct(id)}
-async function save(e){ e.preventDefault();
-
-  const files = Array.from(imageFiles.files || []);
-  const colorImages = {};
-
-  // Upload each selected image to Supabase Storage
-  for(const file of files){
-    const colorName = file.name
-      .split(".")[0]
-      .trim()
-      .toLowerCase();
-
-    const safeName =
-      Date.now() + "-" +
-      file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
-
-    const upload = await fetch(
-      U + "/storage/v1/object/product-images/" + safeName,
-      {
-        method:"POST",
-        headers:{
-          apikey:K,
-          Authorization:"Bearer " + K,
-          "Content-Type":file.type || "image/jpeg"
-        },
-        body:file
-      }
-    );
-
-    if(!upload.ok){
-      alert("Could not upload " + file.name);
-      return;
-    }
-
-    colorImages[colorName] =
-      U + "/storage/v1/object/public/product-images/" +
-      encodeURIComponent(safeName);
-  }
-
-  const body={
-    name:name.value.trim(),
-    price:Number(price.value),
-    color:color.value.trim(),
-    category:cat.value.trim() || "Graphic",
-
-    sizes:sizes.value
-      .split(",")
-      .map(x=>x.trim())
-      .filter(Boolean),
-
-    stock:Number(stock.value),
-
-    color_images:colorImages,
-
-    description:desc.value.trim(),
-    active:true
-  };
-
-  const id=pid.value;
-
-  const r=await A(
-    id
-      ? "products?id=eq."+id
-      : "products",
-    {
-      method:id ? "PATCH" : "POST",
-      headers:{
-        Prefer:"return=minimal",
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(body)
-    }
-  );
-
-  if(!r.ok){
-    alert("Could not save product.");
-    return;
-  }
-
-  closeModal();
-  load();
-}
+async function save(e){ e.preventDefault();const files = Array.from(imageFiles.files || []);const colorImages = {};
+                       // upload each image from your laptop to supabase storage 
+                       for(const file of files)}
+                       const colorName = file.name.split(".")[0].trim().toLowerCase();const safeName =Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");const upload = await fetch(U + "/storage/v1/object/product-images/" + safeName,{method:"POST",headers:{apikey:K,Authorization:"Bearer " + K,"Content-Type":file.type || "image/jpeg"},body:file});if(!upload.ok){alert("Could not upload " + file.name);return;}colorImages[colorName] =U + "/storage/v1/object/public/product-images/" + (safeName);}const body={name:name.value.trim(),price:Number(price.value),color:color.value.trim(),category:cat.value.trim() || "Graphic",sizes:sizes.value.split(",").map(x=>x.trim()).filter(Boolean),stock:Number(stock.value),color_images:colorImages,description:desc.value.trim(),active:true};const id=pid.value;const r=await A(id? "products?id=eq."+id: "products",{method:id ? "PATCH" : "POST",headers:{Prefer:"return=minimal","Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok){alert("Could not save product.");return;}closeModal();load();}
 async function status(id,v){await A("orders?id=eq."+id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({order_status:v})});load()}
 async function verify(id){if(!confirm("Have you checked your UPI/bank app and confirmed this payment?"))return;await A("orders?id=eq."+id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({payment_status:"verified"})});load()}
 load();
