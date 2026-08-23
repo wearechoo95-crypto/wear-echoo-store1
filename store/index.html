@@ -48,24 +48,62 @@ let products=[],cart=JSON.parse(localStorage.getItem("we_cart")||"[]");
 const api=(path,opt={})=>fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",...(opt.headers||{})}});
 function money(n){return "₹"+Number(n).toLocaleString("en-IN")}
 function saveCart(){localStorage.setItem("we_cart",JSON.stringify(cart));renderCart();document.getElementById("count").textContent=cart.reduce((a,x)=>a+x.qty,0)}
-async function loadProducts(){const r=await api("products?active=eq.true&select=*&order=created_at.desc");products=await r.json();renderProducts()}
-function renderProducts(){const el=document.getElementById("products");if(!products.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">No products available yet.</div>';return}el.innerHTML=products.map(p=> const colors=(p.color||"").split(",").map(x=>x.trim()).filter(Boolean);  const sizes=(p.sizes||[]).map(x=>String(x).trim()).filter(Boolean);  const firstColor=colors[0]||""; const images=p.color_images||{};  const firstImage=images[firstColor]||p.image_url||""; return ' <article class="product"><div class="photo" id="photo-${p.id}">$ {firstImage
-            ? `<img src="${esc(firstImage)}" alt="${esc(p.name)}">`
-            : '<div class="noimg">Wear Echoo</div>'}
+async function loadProducts(){
+  const r=await api("products?active=eq.true&select=*&order=created_at.desc");
+  products=await r.json();
+  renderProducts();
+}
+
+function renderProducts(){
+  const el=document.getElementById("products");
+
+  if(!products.length){
+    el.innerHTML='<div class="empty" style="grid-column:1/-1">No products available yet.</div>';
+    return;
+  }
+
+  el.innerHTML=products.map(p=>{
+    const colors=(p.color||"").split(",").map(x=>x.trim()).filter(Boolean);
+    const sizes=(p.sizes||[]).map(x=>String(x).trim()).filter(Boolean);
+
+    const firstColor=colors[0]||"";
+    const images=p.color_images||{};
+    const firstImage=images[firstColor]||p.image_url||"";
+
+    return `
+      <article class="product">
+
+        <div class="photo" id="photo-${p.id}">
+          ${
+            firstImage
+              ? `<img src="${esc(firstImage)}" alt="${esc(p.name)}">`
+              : '<div class="noimg">Wear Echoo</div>'
+          }
         </div>
 
         <div class="info">
           <h3>${esc(p.name)}</h3>
+
           <div class="price">${money(p.price)}</div>
 
           <div class="meta">Colour</div>
+
           <select class="field" id="color-${p.id}" onchange="changeProductImage('${p.id}')">
-            ${colors.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")}
+            ${
+              colors.map(c=>`
+                <option value="${esc(c)}">${esc(c)}</option>
+              `).join("")
+            }
           </select>
 
           <div class="meta">Size</div>
+
           <select class="field" id="size-${p.id}">
-            ${sizes.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("")}
+            ${
+              sizes.map(s=>`
+                <option value="${esc(s)}">${esc(s)}</option>
+              `).join("")
+            }
           </select>
 
           <div class="meta">${p.stock} in stock</div>
@@ -74,9 +112,24 @@ function renderProducts(){const el=document.getElementById("products");if(!produ
             Add to cart
           </button>
         </div>
+
       </article>
     `;
   }).join("");
+}
+
+function changeProductImage(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  const color=document.getElementById("color-"+id).value;
+  const images=p.color_images||{};
+  const image=images[color]||p.image_url||"";
+  const photo=document.getElementById("photo-"+id);
+
+  photo.innerHTML=image
+    ? `<img src="${esc(image)}" alt="${esc(p.name)}">`
+    : '<div class="noimg">Wear Echoo</div>';
 }
 function changeProductImage(id){
   const p=products.find(x=>String(x.id)===String(id));
