@@ -13,9 +13,9 @@
 </main></div>
 <div class="modal" id="modal"><div class="box"><div class="modalhead"><h2 id="mt">Add product</h2><button class="x" onclick="closeModal()">×</button></div><form onsubmit="save(event)"><input type="hidden" id="pid"><div class="formgrid">
 <div><label>Name</label><input class="field" id="name" required></div><div><label>Price</label><input class="field" id="price" type="number" required></div>
-<div><label>Color</label><input class="field" id="color"></div><div><label>Category</label><input class="field" id="cat" value="Graphic"></div>
+<div><label>Color</label><input class="field" id="color" placeholder="black, white, blue, grey, light baby pink, lavender"></div><div><label>Category</label><input class="field" id="cat" value="Graphic"></div>
 <div><label>Sizes</label><input class="field" id="sizes" value="S, M, L, XL, XXL"></div><div><label>Stock</label><input class="field" id="stock" type="number" value="10"></div>
-<div class="full"><label>Image URL</label><input class="field" id="image" placeholder="https://..."></div><div class="full"><label>Description</label><textarea class="field" id="desc" rows="3"></textarea></div>
+<div class="full"><label>color Image</label><textarea class="field" id="image" rows="4" placeholder="Black: URL&#10;White: URL&#10;Blue: URL"></textarea>></div><div class="full"><label>Description</label><textarea class="field" id="desc" rows="3"></textarea></div>
 </div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn green">Save</button></div></form></div></div>
 <script>
 const U="https://fmadihutxxwurcuufwmw.supabase.co",K="sb_publishable_TfPBpYmmiA0ibrkKSdZxLA_vl6wwyTj";
